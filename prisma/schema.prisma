@@ -1,0 +1,805 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model ImagensItensQuestoes {
+  id               Int
+  LinkArquivo      String?        @db.VarChar(500)
+  NomeTag          String?        @db.VarChar(45)
+  ItensQuestoes_Id Int
+  itens_questoes   itens_questoes @relation(fields: [ItensQuestoes_Id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_ImagensItensQuestoes_ItensQuestoes1")
+
+  @@id([id, ItensQuestoes_Id])
+  @@index([ItensQuestoes_Id], map: "fk_ImagensItensQuestoes_ItensQuestoes1_idx")
+}
+
+model areas_conhecimentos {
+  id                             Int                              @id @default(autoincrement())
+  createdBy                      String?                          @db.VarChar(255)
+  createdDate                    DateTime?                        @default(now()) @db.DateTime(6)
+  lastModifiedBy                 String?                          @db.VarChar(255)
+  lastModifiedDate               DateTime?                        @default(now()) @db.DateTime(6)
+  descricao                      String?                          @db.VarChar(255)
+  conteudo                       String?                          @db.Text
+  competencias                   competencias[]
+  disciplinas                    disciplinas[]
+  rel_usuario_areasconhecimentos rel_usuario_areasconhecimentos[]
+}
+
+model categorias {
+  id               Int        @id @default(autoincrement())
+  createdBy        String?    @db.VarChar(255)
+  createdDate      DateTime?  @default(now()) @db.DateTime(6)
+  lastModifiedBy   String?    @db.VarChar(255)
+  lastModifiedDate DateTime?  @default(now()) @db.DateTime(6)
+  descricao        String?    @db.VarChar(255)
+  prova            String?    @db.VarChar(255)
+  num_questao_enem Int?
+  questoes         questoes[]
+}
+
+model competencias {
+  id                     Int                  @id @default(autoincrement())
+  createdBy              String?              @db.VarChar(255)
+  createdDate            DateTime?            @default(now()) @db.DateTime(6)
+  lastModifiedBy         String?              @db.VarChar(255)
+  lastModifiedDate       DateTime?            @default(now()) @db.DateTime(6)
+  areas_conhecimentos_id Int
+  descricao              String?              @db.Text
+  codigo                 String?              @db.VarChar(255)
+  areasConhecimentosId   Int?
+  areas_conhecimentos    areas_conhecimentos? @relation(fields: [areasConhecimentosId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_15a83a9b93c0f51f00c8e429ad6")
+  habilidades            habilidades[]
+
+  @@index([areasConhecimentosId], map: "FK_15a83a9b93c0f51f00c8e429ad6")
+}
+
+model cupons {
+  id                  Int        @id @default(autoincrement())
+  createdBy           String?    @db.VarChar(255)
+  createdDate         DateTime?  @default(now()) @db.DateTime(6)
+  lastModifiedBy      String?    @db.VarChar(255)
+  lastModifiedDate    DateTime?  @default(now()) @db.DateTime(6)
+  cod_cupom           String?    @db.VarChar(255)
+  percentual_desconto Int?
+  qtd_dias            Int?
+  dt_encerramento     DateTime?  @db.DateTime(0)
+  parceirosId         Int?
+  parceiros           parceiros? @relation(fields: [parceirosId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_c70385433044d9eb7baee5a1d9a")
+
+  @@index([parceirosId], map: "FK_c70385433044d9eb7baee5a1d9a")
+}
+
+model cursos {
+  id                  Int                   @id @default(autoincrement())
+  createdBy           String?               @db.VarChar(255)
+  createdDate         DateTime?             @default(now()) @db.DateTime(6)
+  lastModifiedBy      String?               @db.VarChar(255)
+  lastModifiedDate    DateTime?             @default(now()) @db.DateTime(6)
+  nome                String?               @db.VarChar(255)
+  descricao           String?               @db.VarChar(255)
+  grau                String?               @db.VarChar(100)
+  turno               String?               @db.VarChar(100)
+  cursos_instituicoes cursos_instituicoes[]
+}
+
+model cursos_instituicoes {
+  id                              Int                               @id @default(autoincrement())
+  createdBy                       String?                           @db.VarChar(255)
+  createdDate                     DateTime?                         @default(now()) @db.DateTime(6)
+  lastModifiedBy                  String?                           @db.VarChar(255)
+  lastModifiedDate                DateTime?                         @default(now()) @db.DateTime(6)
+  cursosId                        Int?
+  instituicoesId                  Int?
+  peso_redacao                    Decimal?                          @db.Decimal(2, 2)
+  peso_cn                         Decimal?                          @db.Decimal(2, 2)
+  peso_ch                         Decimal?                          @db.Decimal(2, 2)
+  peso_lc                         Decimal?                          @db.Decimal(2, 2)
+  peso_m                          Decimal?                          @db.Decimal(2, 2)
+  nota_minima_redacao             Decimal?                          @db.Decimal(2, 2)
+  nota_minima_cn                  Decimal?                          @db.Decimal(2, 2)
+  nota_minima_ch                  Decimal?                          @db.Decimal(2, 2)
+  nota_minima_lc                  Decimal?                          @db.Decimal(2, 2)
+  nota_minims_m                   Decimal?                          @db.Decimal(2, 2)
+  media_minima                    Decimal?                          @db.Decimal(2, 2)
+  cursos                          cursos?                           @relation(fields: [cursosId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_b1fddf116833982ef67c3e654e5")
+  instituicoes                    instituicoes?                     @relation(fields: [instituicoesId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_e57df15f93aa32e5c0ec33f0077")
+  rel_cursos_instituicoes_usuario rel_cursos_instituicoes_usuario[]
+
+  @@index([cursosId], map: "FK_b1fddf116833982ef67c3e654e5")
+  @@index([instituicoesId], map: "FK_e57df15f93aa32e5c0ec33f0077")
+}
+
+model diasda_semana {
+  id                          Int                           @id @default(autoincrement())
+  createdBy                   String?                       @db.VarChar(255)
+  createdDate                 DateTime?                     @default(now()) @db.DateTime(6)
+  lastModifiedBy              String?                       @db.VarChar(255)
+  lastModifiedDate            DateTime?                     @default(now()) @db.DateTime(6)
+  descricao                   String?                       @db.VarChar(255)
+  rel_usuarios__diasda_semana rel_usuarios__diasda_semana[]
+}
+
+model disciplinas {
+  id                     Int                  @id @default(autoincrement())
+  createdBy              String?              @db.VarChar(255)
+  createdDate            DateTime?            @default(now()) @db.DateTime(6)
+  lastModifiedBy         String?              @db.VarChar(255)
+  lastModifiedDate       DateTime?            @default(now()) @db.DateTime(6)
+  areas_conhecimentos_id Int
+  descricao              String?              @db.VarChar(255)
+  areasConhecimentosId   Int?
+  areas_conhecimentos    areas_conhecimentos? @relation(fields: [areasConhecimentosId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_cbfba8a7b2c7b91e08931811d49")
+  materias               materias[]
+
+  @@index([areasConhecimentosId], map: "FK_cbfba8a7b2c7b91e08931811d49")
+}
+
+model empresas {
+  id                  Int         @id @default(autoincrement())
+  createdBy           String?     @db.VarChar(255)
+  createdDate         DateTime?   @default(now()) @db.DateTime(6)
+  lastModifiedBy      String?     @db.VarChar(255)
+  lastModifiedDate    DateTime?   @default(now()) @db.DateTime(6)
+  cnpj                String?     @db.VarChar(255)
+  razao_social        String?     @db.VarChar(255)
+  nome_fantasia       String?     @db.VarChar(255)
+  cep                 String?     @db.VarChar(255)
+  endereco            String?     @db.VarChar(255)
+  numero              String?     @db.VarChar(255)
+  inscricao_estadual  Int
+  inscricao_municipal Int
+  parceiros           parceiros[]
+}
+
+model estados {
+  id               Int            @id @default(autoincrement())
+  createdBy        String?        @db.VarChar(255)
+  createdDate      DateTime?      @default(now()) @db.DateTime(6)
+  lastModifiedBy   String?        @db.VarChar(255)
+  lastModifiedDate DateTime?      @default(now()) @db.DateTime(6)
+  uf               String?        @db.VarChar(255)
+  nome             String?        @db.VarChar(255)
+  populacao        Float?         @db.Float
+  ibge             String?        @db.VarChar(255)
+  ddd              String?        @db.VarChar(100)
+  instituicoes     instituicoes[]
+  municipios       municipios[]
+  usuarios         usuarios[]
+}
+
+model extrato_pontuacao {
+  id               Int       @id @default(autoincrement())
+  createdBy        String?   @db.VarChar(255)
+  createdDate      DateTime? @default(now()) @db.DateTime(6)
+  lastModifiedBy   String?   @db.VarChar(255)
+  lastModifiedDate DateTime? @default(now()) @db.DateTime(6)
+  pontuacao        Int
+  usuariosId       Int?
+  usuarios         usuarios? @relation(fields: [usuariosId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_3529474d1a4965cd1534ea3a351")
+
+  @@index([usuariosId], map: "FK_3529474d1a4965cd1534ea3a351")
+}
+
+model grau_dificuldade {
+  id               Int        @id @default(autoincrement())
+  createdBy        String?    @db.VarChar(255)
+  createdDate      DateTime?  @default(now()) @db.DateTime(6)
+  lastModifiedBy   String?    @db.VarChar(255)
+  lastModifiedDate DateTime?  @default(now()) @db.DateTime(6)
+  descricao        String?    @db.VarChar(255)
+  questoes         questoes[]
+}
+
+model grau_ensinos {
+  id                         Int                          @id @default(autoincrement())
+  createdBy                  String?                      @db.VarChar(255)
+  createdDate                DateTime?                    @default(now()) @db.DateTime(6)
+  lastModifiedBy             String?                      @db.VarChar(255)
+  lastModifiedDate           DateTime?                    @default(now()) @db.DateTime(6)
+  descricao                  String?                      @db.VarChar(255)
+  rel_grau_ensinos__materias rel_grau_ensinos__materias[]
+  usuarios                   usuarios[]
+}
+
+model habilidades {
+  id                        Int                         @id @default(autoincrement())
+  createdBy                 String?                     @db.VarChar(255)
+  createdDate               DateTime?                   @default(now()) @db.DateTime(6)
+  lastModifiedBy            String?                     @db.VarChar(255)
+  lastModifiedDate          DateTime?                   @default(now()) @db.DateTime(6)
+  descricao                 String?                     @db.VarChar(255)
+  competenciasId            Int?
+  competencias              competencias?               @relation(fields: [competenciasId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_057d48a5cdb0deb960979aa237b")
+  rel_habilidades__questoes rel_habilidades__questoes[]
+
+  @@index([competenciasId], map: "FK_057d48a5cdb0deb960979aa237b")
+}
+
+model imagens_questoes {
+  id               Int       @id @default(autoincrement())
+  createdBy        String?   @db.VarChar(255)
+  createdDate      DateTime? @default(now()) @db.DateTime(6)
+  lastModifiedBy   String?   @db.VarChar(255)
+  lastModifiedDate DateTime? @default(now()) @db.DateTime(6)
+  link_arquivo     String    @db.VarChar(255)
+  nome_tag         String?   @db.VarChar(255)
+  questoesId       Int?
+  questoes         questoes? @relation(fields: [questoesId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_dec7b4b49f16edd21c91054e4f9")
+
+  @@index([questoesId], map: "FK_dec7b4b49f16edd21c91054e4f9")
+}
+
+model importador_questoes {
+  id                    Int       @id @default(autoincrement())
+  createdBy             String?   @db.VarChar(255)
+  createdDate           DateTime? @default(now()) @db.DateTime(6)
+  lastModifiedBy        String?   @db.VarChar(255)
+  lastModifiedDate      DateTime? @default(now()) @db.DateTime(6)
+  disciplina            String?   @db.VarChar(255)
+  ano                   String?   @db.VarChar(255)
+  nivel                 String?   @db.VarChar(255)
+  materia               String?   @db.VarChar(255)
+  submateria_1          String?   @db.VarChar(255)
+  submateria_2          String?   @db.VarChar(255)
+  submateria_3          String?   @db.VarChar(255)
+  submateria_4          String?   @db.VarChar(255)
+  submateria_5          String?   @db.VarChar(255)
+  vestibular            String?   @db.VarChar(255)
+  pergunta              String?   @db.Text
+  a                     String?   @db.Text
+  b                     String?   @db.Text
+  c                     String?   @db.Text
+  d                     String?   @db.Text
+  e                     String?   @db.Text
+  gabarito              String?   @db.VarChar(255)
+  tag                   String?   @db.VarChar(255)
+  habilidade            String?   @db.Text
+  justificativa_questao String?   @db.Text
+  just_item_a           String?   @db.Text
+  just_item_b           String?   @db.Text
+  just_item_c           String?   @db.Text
+  just_item_d           String?   @db.Text
+  just_item_e           String?   @db.Text
+  tempo                 Int?
+  num_questao           String?   @db.VarChar(255)
+  usa_imagem            String?   @db.VarChar(255)
+  nome_imagem_1         String?   @db.VarChar(255)
+  nome_imagem_2         String?   @db.VarChar(255)
+  nome_imagem_3         String?   @db.VarChar(255)
+  nome_imagem_4         String?   @db.VarChar(255)
+  nome_imagem_5         String?   @db.VarChar(255)
+  nome_imagem_6         String?   @db.VarChar(255)
+  nome_imagem_7         String?   @db.VarChar(255)
+  nome_imagem_8         String?   @db.VarChar(255)
+  nome_imagem_9         String?   @db.VarChar(255)
+  nome_imagem_10        String?   @db.VarChar(255)
+  link_video            String?   @db.VarChar(255)
+  nome_planilha         String?   @db.VarChar(255)
+  seq_planilha          Int?
+  responsavel           String?   @db.VarChar(255)
+  importado             String?   @db.Char(1)
+}
+
+model instituicoes {
+  id                  Int                   @id @default(autoincrement())
+  createdBy           String?               @db.VarChar(255)
+  createdDate         DateTime?             @default(now()) @db.DateTime(6)
+  lastModifiedBy      String?               @db.VarChar(255)
+  lastModifiedDate    DateTime?             @default(now()) @db.DateTime(6)
+  nome                String?               @db.VarChar(255)
+  tipo_instituicao    String?               @db.VarChar(255)
+  municipiosId        Int?
+  sigla               String?               @db.VarChar(100)
+  tipo_organizacao    String?               @db.VarChar(100)
+  categoria           String?               @db.VarChar(100)
+  nome_campus         String?               @db.VarChar(100)
+  estadoId            Int?
+  municipios          municipios?           @relation(fields: [municipiosId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_0d29cb4ffacae74e6eede837548")
+  estados             estados?              @relation(fields: [estadoId], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "instituicoes_FK")
+  cursos_instituicoes cursos_instituicoes[]
+
+  @@index([municipiosId], map: "FK_0d29cb4ffacae74e6eede837548")
+  @@index([estadoId], map: "instituicoes_FK")
+}
+
+model itens_persona {
+  id               Int       @id @default(autoincrement())
+  createdBy        String?   @db.VarChar(255)
+  createdDate      DateTime? @default(now()) @db.DateTime(6)
+  lastModifiedBy   String?   @db.VarChar(255)
+  lastModifiedDate DateTime? @default(now()) @db.DateTime(6)
+  descricao        String?   @db.Text
+  personaId        Int?
+  persona          persona?  @relation(fields: [personaId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_e274002591dd0403669be9e8d1e")
+
+  @@index([personaId], map: "FK_e274002591dd0403669be9e8d1e")
+}
+
+model itens_questoes {
+  id                   Int                    @id @default(autoincrement())
+  createdBy            String?                @db.VarChar(255)
+  createdDate          DateTime?              @default(now()) @db.DateTime(6)
+  lastModifiedBy       String?                @db.VarChar(255)
+  lastModifiedDate     DateTime?              @default(now()) @db.DateTime(6)
+  st_gabarito          String?                @db.VarChar(255)
+  descricao            String?                @db.Text
+  questoesId           Int?
+  questoes             questoes?              @relation(fields: [questoesId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_68887e01e1716a6b94a074e76f4")
+  ImagensItensQuestoes ImagensItensQuestoes[]
+  justificativa_item   justificativa_item?
+  respostas_simulados  respostas_simulados[]
+
+  @@index([questoesId], map: "FK_68887e01e1716a6b94a074e76f4")
+}
+
+model justificativa_item {
+  id                   Int             @id @default(autoincrement())
+  createdBy            String?         @db.VarChar(255)
+  createdDate          DateTime?       @default(now()) @db.DateTime(6)
+  lastModifiedBy       String?         @db.VarChar(255)
+  lastModifiedDate     DateTime?       @default(now()) @db.DateTime(6)
+  descricao            String?         @db.Text
+  link_video_comentado String?         @db.VarChar(255)
+  itensQuestoesId      Int?            @unique(map: "REL_91bd7b3b5596ee971a6f1b1df9")
+  itens_questoes       itens_questoes? @relation(fields: [itensQuestoesId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_91bd7b3b5596ee971a6f1b1df97")
+}
+
+model justificativas {
+  id                   Int       @id @default(autoincrement())
+  createdBy            String?   @db.VarChar(255)
+  createdDate          DateTime? @default(now()) @db.DateTime(6)
+  lastModifiedBy       String?   @db.VarChar(255)
+  lastModifiedDate     DateTime? @default(now()) @db.DateTime(6)
+  descricao            String?   @db.Text
+  link_video_comentado String?   @db.VarChar(255)
+  questoesId           Int?      @unique(map: "REL_927491d2c7e721a368aa9ac2d9")
+  questoes             questoes? @relation(fields: [questoesId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_927491d2c7e721a368aa9ac2d96")
+}
+
+model materias {
+  id                         Int                          @id @default(autoincrement())
+  createdBy                  String?                      @db.VarChar(255)
+  createdDate                DateTime?                    @default(now()) @db.DateTime(6)
+  lastModifiedBy             String?                      @db.VarChar(255)
+  lastModifiedDate           DateTime?                    @default(now()) @db.DateTime(6)
+  descricao                  String?                      @db.VarChar(255)
+  disciplinasId              Int?
+  disciplinas                disciplinas?                 @relation(fields: [disciplinasId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_d395ffddcf728d842a99a514fc2")
+  questoes                   questoes[]
+  rel_grau_ensinos__materias rel_grau_ensinos__materias[]
+  rel_materias__video_aulas  rel_materias__video_aulas[]
+
+  @@index([disciplinasId], map: "FK_d395ffddcf728d842a99a514fc2")
+}
+
+model menu {
+  id               Int       @id @default(autoincrement())
+  createdBy        String?   @db.VarChar(255)
+  createdDate      DateTime? @default(now()) @db.DateTime(6)
+  lastModifiedBy   String?   @db.VarChar(255)
+  lastModifiedDate DateTime? @default(now()) @db.DateTime(6)
+  nome             String?   @db.VarChar(255)
+  icon             String?   @db.VarChar(255)
+  id_pai           Int?
+}
+
+model migrations {
+  id        Int    @id @default(autoincrement())
+  timestamp BigInt
+  name      String @db.VarChar(255)
+}
+
+model municipios {
+  id               Int            @id @default(autoincrement())
+  createdBy        String?        @db.VarChar(255)
+  createdDate      DateTime?      @default(now()) @db.DateTime(6)
+  lastModifiedBy   String?        @db.VarChar(255)
+  lastModifiedDate DateTime?      @default(now()) @db.DateTime(6)
+  nome             String?        @db.VarChar(255)
+  codigo           String?        @db.VarChar(255)
+  estadosId        Int?
+  estados          estados?       @relation(fields: [estadosId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_f957aac92c3afb93a1343139c2b")
+  instituicoes     instituicoes[]
+  parceiros        parceiros[]
+  usuarios         usuarios[]
+
+  @@index([estadosId], map: "FK_f957aac92c3afb93a1343139c2b")
+}
+
+model nhi_authority {
+  name                               String                               @id @db.VarChar(255)
+  nhi_user_authorities_nhi_authority nhi_user_authorities_nhi_authority[]
+}
+
+model nhi_user {
+  id                                 Int                                  @id @default(autoincrement())
+  createdBy                          String?                              @db.VarChar(255)
+  createdDate                        DateTime?                            @default(now()) @db.DateTime(6)
+  lastModifiedBy                     String?                              @db.VarChar(255)
+  lastModifiedDate                   DateTime?                            @default(now()) @db.DateTime(6)
+  login                              String                               @unique(map: "IDX_d8aceabd1bcefd45845b3f2da1") @db.VarChar(255)
+  firstName                          String?                              @db.VarChar(255)
+  lastName                           String?                              @db.VarChar(255)
+  email                              String                               @db.VarChar(255)
+  activated                          Int                                  @default(0) @db.TinyInt
+  langKey                            String                               @default("en") @db.VarChar(255)
+  password                           String                               @db.VarChar(255)
+  imageUrl                           String?                              @db.VarChar(255)
+  activationKey                      String?                              @db.VarChar(255)
+  resetKey                           String?                              @db.VarChar(255)
+  resetDate                          DateTime?                            @db.DateTime(0)
+  nhi_user_authorities_nhi_authority nhi_user_authorities_nhi_authority[]
+}
+
+model nhi_user_authorities_nhi_authority {
+  nhiUserId        Int
+  nhiAuthorityName String        @db.VarChar(255)
+  nhi_user         nhi_user      @relation(fields: [nhiUserId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "FK_3b6eb9c8f909265a6a1deb485f9")
+  nhi_authority    nhi_authority @relation(fields: [nhiAuthorityName], references: [name], onDelete: Cascade, onUpdate: NoAction, map: "FK_aa3b9b8435514f4bf7ac28e136d")
+
+  @@id([nhiUserId, nhiAuthorityName])
+  @@index([nhiUserId], map: "IDX_3b6eb9c8f909265a6a1deb485f")
+  @@index([nhiAuthorityName], map: "IDX_aa3b9b8435514f4bf7ac28e136")
+}
+
+model parceiros {
+  id                      Int                       @id @default(autoincrement())
+  createdBy               String?                   @db.VarChar(255)
+  createdDate             DateTime?                 @default(now()) @db.DateTime(6)
+  lastModifiedBy          String?                   @db.VarChar(255)
+  lastModifiedDate        DateTime?                 @default(now()) @db.DateTime(6)
+  cpf_cnpj                String?                   @db.VarChar(255)
+  razao_social            String?                   @db.VarChar(255)
+  nome_fantasia           String?                   @db.VarChar(255)
+  cep                     String?                   @db.VarChar(255)
+  endereco                String?                   @db.VarChar(255)
+  numero                  String?                   @db.VarChar(255)
+  inscricao_municipal     String?                   @db.VarChar(255)
+  inscricao_estadual      String?                   @db.VarChar(255)
+  st_exclusao             String?                   @db.VarChar(255)
+  empresasId              Int?
+  municipiosId            Int?
+  municipios              municipios?               @relation(fields: [municipiosId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_68fba1ef150b62e8ef0cc74b038")
+  empresas                empresas?                 @relation(fields: [empresasId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_dc3e52b8289ac78eafc8444b6eb")
+  cupons                  cupons[]
+  rel_parceiros__produtos rel_parceiros__produtos[]
+  usuarios                usuarios[]
+
+  @@index([municipiosId], map: "FK_68fba1ef150b62e8ef0cc74b038")
+  @@index([empresasId], map: "FK_dc3e52b8289ac78eafc8444b6eb")
+}
+
+model persona {
+  id                       Int                        @id @default(autoincrement())
+  createdBy                String?                    @db.VarChar(255)
+  createdDate              DateTime?                  @default(now()) @db.DateTime(6)
+  lastModifiedBy           String?                    @db.VarChar(255)
+  lastModifiedDate         DateTime?                  @default(now()) @db.DateTime(6)
+  nome                     String?                    @db.VarChar(255)
+  img_link                 String?                    @db.VarChar(255)
+  tipo                     String?                    @db.VarChar(255)
+  status                   String?                    @db.VarChar(255)
+  itens_persona            itens_persona[]
+  resposta_persona_usuario resposta_persona_usuario[]
+}
+
+model produtos {
+  id                      Int                       @id @default(autoincrement())
+  createdBy               String?                   @db.VarChar(255)
+  createdDate             DateTime?                 @default(now()) @db.DateTime(6)
+  lastModifiedBy          String?                   @db.VarChar(255)
+  lastModifiedDate        DateTime?                 @default(now()) @db.DateTime(6)
+  nome                    String?                   @db.VarChar(255)
+  valor                   Float?                    @db.Float
+  observacao              String?                   @db.VarChar(255)
+  rel_parceiros__produtos rel_parceiros__produtos[]
+  rel_usuarios__produtos  rel_usuarios__produtos[]
+}
+
+model questoes {
+  id                        Int                         @id @default(autoincrement())
+  createdBy                 String?                     @db.VarChar(255)
+  createdDate               DateTime?                   @default(now()) @db.DateTime(6)
+  lastModifiedBy            String?                     @db.VarChar(255)
+  lastModifiedDate          DateTime?                   @default(now()) @db.DateTime(6)
+  descricao                 String?                     @db.Text
+  tempo_max                 Int?
+  num_questao               String?                     @db.VarChar(255)
+  questoes_chaves           String?                     @db.VarChar(255)
+  pontuacao                 Int?
+  st_status                 String?                     @db.Char(1)
+  st_exclusao               String?                     @db.Char(1)
+  dt_exclusao               DateTime?                   @db.Date
+  st_revisao                String?                     @db.Char(1)
+  dt_revisao                DateTime?                   @db.Date
+  usuarioId                 Int?
+  materiasId                Int?
+  categoriasId              Int?
+  grauDificuldadeId         Int?
+  disciplinasId             Int?
+  materias                  materias?                   @relation(fields: [materiasId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_2508989aac9341aaad6e7df2696")
+  grau_dificuldade          grau_dificuldade?           @relation(fields: [grauDificuldadeId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_babbeed70be6ddab949d5a20fbf")
+  categorias                categorias?                 @relation(fields: [categoriasId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_c3cd5aaafa561c750dcef103f5c")
+  imagens_questoes          imagens_questoes[]
+  itens_questoes            itens_questoes[]
+  justificativas            justificativas?
+  rel_habilidades__questoes rel_habilidades__questoes[]
+  rel_questoes__tags        rel_questoes__tags[]
+  simulados_questoes        simulados_questoes[]
+
+  @@index([materiasId], map: "FK_2508989aac9341aaad6e7df2696")
+  @@index([grauDificuldadeId], map: "FK_babbeed70be6ddab949d5a20fbf")
+  @@index([categoriasId], map: "FK_c3cd5aaafa561c750dcef103f5c")
+}
+
+model rel_cursos_instituicoes_usuario {
+  usuarios_id            Int
+  cursos_instituicoes_id Int
+  usuarios               usuarios            @relation(fields: [usuarios_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "FK_3f1b47d91f0c61f44d611949eb4")
+  cursos_instituicoes    cursos_instituicoes @relation(fields: [cursos_instituicoes_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "FK_f6dd1a598c510ef692ccd95e1cd")
+
+  @@id([usuarios_id, cursos_instituicoes_id])
+  @@index([usuarios_id], map: "IDX_3f1b47d91f0c61f44d611949eb")
+  @@index([cursos_instituicoes_id], map: "IDX_f6dd1a598c510ef692ccd95e1c")
+}
+
+model rel_grau_ensinos__materias {
+  grau_ensinos_id Int
+  materias_id     Int
+  grau_ensinos    grau_ensinos @relation(fields: [grau_ensinos_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "FK_6b2bb36ea1021a169c1fe7e71d8")
+  materias        materias     @relation(fields: [materias_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "FK_6ecb8d1f0510a2dc773447c8698")
+
+  @@id([grau_ensinos_id, materias_id])
+  @@index([grau_ensinos_id], map: "IDX_6b2bb36ea1021a169c1fe7e71d")
+  @@index([materias_id], map: "IDX_6ecb8d1f0510a2dc773447c869")
+}
+
+model rel_habilidades__questoes {
+  habilidades_id Int
+  questoes_id    Int
+  questoes       questoes    @relation(fields: [questoes_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "FK_1a1d64919e5b1a3a245866698ac")
+  habilidades    habilidades @relation(fields: [habilidades_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "FK_b7926a782746a1e819b072fd00a")
+
+  @@id([habilidades_id, questoes_id])
+  @@index([questoes_id], map: "IDX_1a1d64919e5b1a3a245866698a")
+  @@index([habilidades_id], map: "IDX_b7926a782746a1e819b072fd00")
+}
+
+model rel_materias__video_aulas {
+  materias_id    Int
+  video_aulas_id Int
+  video_aulas    video_aulas @relation(fields: [video_aulas_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "FK_232d15d771db12650e45acc0d16")
+  materias       materias    @relation(fields: [materias_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "FK_a1bccad3bcf17383d1b2ba02591")
+
+  @@id([materias_id, video_aulas_id])
+  @@index([video_aulas_id], map: "IDX_232d15d771db12650e45acc0d1")
+  @@index([materias_id], map: "IDX_a1bccad3bcf17383d1b2ba0259")
+}
+
+model rel_parceiros__produtos {
+  parceiros_id Int
+  produtos_id  Int
+  produtos     produtos  @relation(fields: [produtos_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "FK_3af9822cf2d0a452574fae3b5d5")
+  parceiros    parceiros @relation(fields: [parceiros_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "FK_3fa64a170a08bf06272ecf0fa46")
+
+  @@id([parceiros_id, produtos_id])
+  @@index([produtos_id], map: "IDX_3af9822cf2d0a452574fae3b5d")
+  @@index([parceiros_id], map: "IDX_3fa64a170a08bf06272ecf0fa4")
+}
+
+model rel_questoes__tags {
+  questoes_id Int
+  tags_id     Int
+  tags        tags     @relation(fields: [tags_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "FK_8387a9ae08d4664d3b616af83ea")
+  questoes    questoes @relation(fields: [questoes_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "FK_9bab93a5df87b28b554788d825a")
+
+  @@id([questoes_id, tags_id])
+  @@index([tags_id], map: "IDX_8387a9ae08d4664d3b616af83e")
+  @@index([questoes_id], map: "IDX_9bab93a5df87b28b554788d825")
+}
+
+model rel_usuario_areasconhecimentos {
+  usuario_id            Int
+  areasConhecimentos_id Int
+  usuarios              usuarios            @relation(fields: [usuario_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "FK_3a40c742c99078581e9f807b329")
+  areas_conhecimentos   areas_conhecimentos @relation(fields: [areasConhecimentos_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "FK_4290651ee233afeee554ae14825")
+
+  @@id([usuario_id, areasConhecimentos_id])
+  @@index([usuario_id], map: "IDX_3a40c742c99078581e9f807b32")
+  @@index([areasConhecimentos_id], map: "IDX_4290651ee233afeee554ae1482")
+}
+
+model rel_usuarios__diasda_semana {
+  usuarios_id      Int
+  diasda_semana_id Int
+  usuarios         usuarios      @relation(fields: [usuarios_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "FK_2e81766ba69a66a4074710c37fc")
+  diasda_semana    diasda_semana @relation(fields: [diasda_semana_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "FK_c338507da062e53136599c4dd29")
+
+  @@id([usuarios_id, diasda_semana_id])
+  @@index([usuarios_id], map: "IDX_2e81766ba69a66a4074710c37f")
+  @@index([diasda_semana_id], map: "IDX_c338507da062e53136599c4dd2")
+}
+
+model rel_usuarios__produtos {
+  usuarios_id Int
+  produtos_id Int
+  produtos    produtos @relation(fields: [produtos_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "FK_2032d63deb859a66338bb68561b")
+  usuarios    usuarios @relation(fields: [usuarios_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "FK_6bb59555bd7297e472ca970f7bb")
+
+  @@id([usuarios_id, produtos_id])
+  @@index([produtos_id], map: "IDX_2032d63deb859a66338bb68561")
+  @@index([usuarios_id], map: "IDX_6bb59555bd7297e472ca970f7b")
+}
+
+model rel_video_aulas__tags {
+  video_aulas_id Int
+  tags_id        Int
+  video_aulas    video_aulas @relation(fields: [video_aulas_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "FK_22aa9da82b1ebf4b4fe428780df")
+  tags           tags        @relation(fields: [tags_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "FK_b80963945cccb591998b360022f")
+
+  @@id([video_aulas_id, tags_id])
+  @@index([video_aulas_id], map: "IDX_22aa9da82b1ebf4b4fe428780d")
+  @@index([tags_id], map: "IDX_b80963945cccb591998b360022")
+}
+
+model resposta_persona_usuario {
+  id               Int       @id @default(autoincrement())
+  createdBy        String?   @db.VarChar(255)
+  createdDate      DateTime? @default(now()) @db.DateTime(6)
+  lastModifiedBy   String?   @db.VarChar(255)
+  lastModifiedDate DateTime? @default(now()) @db.DateTime(6)
+  personaId        Int?
+  usuariosId       Int?
+  usuarios         usuarios? @relation(fields: [usuariosId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_b6094be72a29ecc7f325d1a2d32")
+  persona          persona?  @relation(fields: [personaId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_d8d28fe339e217d3360506e7a09")
+
+  @@index([usuariosId], map: "FK_b6094be72a29ecc7f325d1a2d32")
+  @@index([personaId], map: "FK_d8d28fe339e217d3360506e7a09")
+}
+
+model respostas_simulados {
+  id                  Int                 @id @default(autoincrement())
+  createdBy           String?             @db.VarChar(255)
+  createdDate         DateTime?           @default(now()) @db.DateTime(6)
+  lastModifiedBy      String?             @db.VarChar(255)
+  lastModifiedDate    DateTime?           @default(now()) @db.DateTime(6)
+  itensQuestoesId     Int?
+  simuladosQuestoesId Int?
+  simulados_questoes  simulados_questoes? @relation(fields: [simuladosQuestoesId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_aeacf7acf37ac8656f67b8e98ba")
+  itens_questoes      itens_questoes?     @relation(fields: [itensQuestoesId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_b641cadc6db239b710663ff19bf")
+
+  @@index([simuladosQuestoesId], map: "FK_aeacf7acf37ac8656f67b8e98ba")
+  @@index([itensQuestoesId], map: "FK_b641cadc6db239b710663ff19bf")
+}
+
+model simulados {
+  id                 Int                  @id @default(autoincrement())
+  createdBy          String?              @db.VarChar(255)
+  createdDate        DateTime?            @default(now()) @db.DateTime(6)
+  lastModifiedBy     String?              @db.VarChar(255)
+  lastModifiedDate   DateTime?            @default(now()) @db.DateTime(6)
+  status             String?              @db.VarChar(255)
+  qtd_questoes       Int?
+  qtd_acertos        Int?
+  qtd_erros          Int?
+  percentual_acertos Int?
+  percentual_erros   Int?
+  pontuacao          Int?
+  usuariosId         Int?
+  tipoSimuladoId     Int?
+  tipo_simulado      tipo_simulado?       @relation(fields: [tipoSimuladoId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_922cba107b590cf22f3b70d00a1")
+  usuarios           usuarios?            @relation(fields: [usuariosId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_a5fa81f7ba8990420a9ac56444d")
+  simulados_questoes simulados_questoes[]
+
+  @@index([tipoSimuladoId], map: "FK_922cba107b590cf22f3b70d00a1")
+  @@index([usuariosId], map: "FK_a5fa81f7ba8990420a9ac56444d")
+}
+
+model simulados_questoes {
+  id                  Int                   @id @default(autoincrement())
+  createdBy           String?               @db.VarChar(255)
+  createdDate         DateTime?             @default(now()) @db.DateTime(6)
+  lastModifiedBy      String?               @db.VarChar(255)
+  lastModifiedDate    DateTime?             @default(now()) @db.DateTime(6)
+  questoesId          Int?
+  simuladosId         Int?
+  simulados           simulados?            @relation(fields: [simuladosId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_17f3687ad43ba53879a4d549471")
+  questoes            questoes?             @relation(fields: [questoesId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_656d32ece8c67b02d04036d1939")
+  respostas_simulados respostas_simulados[]
+
+  @@index([simuladosId], map: "FK_17f3687ad43ba53879a4d549471")
+  @@index([questoesId], map: "FK_656d32ece8c67b02d04036d1939")
+}
+
+model tags {
+  id                    Int                     @id @default(autoincrement())
+  createdBy             String?                 @db.VarChar(255)
+  createdDate           DateTime?               @default(now()) @db.DateTime(6)
+  lastModifiedBy        String?                 @db.VarChar(255)
+  lastModifiedDate      DateTime?               @default(now()) @db.DateTime(6)
+  descricao             String?                 @db.VarChar(255)
+  rel_questoes__tags    rel_questoes__tags[]
+  rel_video_aulas__tags rel_video_aulas__tags[]
+}
+
+model tipo_simulado {
+  id               Int         @id @default(autoincrement())
+  createdBy        String?     @db.VarChar(255)
+  createdDate      DateTime?   @default(now()) @db.DateTime(6)
+  lastModifiedBy   String?     @db.VarChar(255)
+  lastModifiedDate DateTime?   @default(now()) @db.DateTime(6)
+  descricao        String?     @db.VarChar(255)
+  simulados        simulados[]
+}
+
+model tipo_usuario {
+  id               Int        @id @default(autoincrement())
+  createdBy        String?    @db.VarChar(255)
+  createdDate      DateTime?  @default(now()) @db.DateTime(6)
+  lastModifiedBy   String?    @db.VarChar(255)
+  lastModifiedDate DateTime?  @default(now()) @db.DateTime(6)
+  nome             String?    @db.VarChar(255)
+  cod              String?    @db.VarChar(255)
+  usuarios         usuarios[]
+}
+
+model usuarios {
+  id                              Int                               @id @default(autoincrement())
+  createdBy                       String?                           @db.VarChar(255)
+  createdDate                     DateTime?                         @default(now()) @db.DateTime(6)
+  lastModifiedBy                  String?                           @db.VarChar(255)
+  lastModifiedDate                DateTime?                         @default(now()) @db.DateTime(6)
+  nome                            String?                           @db.VarChar(255)
+  email                           String?                           @db.VarChar(255)
+  telefone                        String?                           @db.VarChar(255)
+  codigoSeguranca                 String?                           @db.VarChar(255)
+  codigoSegurancaUsado            Int?                              @db.TinyInt
+  dataGeracaoCodigoSeguranca      DateTime?                         @db.DateTime(0)
+  dt_nascimento                   DateTime?                         @db.Date
+  nhiUserId                       Int?
+  st_primeiro_acesso              String?                           @db.VarChar(255)
+  nome_social                     String?                           @db.VarChar(255)
+  grauEnsinosId                   Int?
+  tipoUsuarioId                   Int?
+  parceirosId                     Int?
+  municipiosId                    Int?
+  estadosId                       Int?
+  grau_ensinos                    grau_ensinos?                     @relation(fields: [grauEnsinosId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_1dbfde1a6892f6508862bc3dda6")
+  municipios                      municipios?                       @relation(fields: [municipiosId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_2c974ce1177eb8ef4a3a2e0c63c")
+  tipo_usuario                    tipo_usuario?                     @relation(fields: [tipoUsuarioId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_47004ca0d45d62edfc526ebf748")
+  estados                         estados?                          @relation(fields: [estadosId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_4f64fa05917a1da1eb72d905459")
+  parceiros                       parceiros?                        @relation(fields: [parceirosId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_65c415e7ac3bf32a953e4d0f2df")
+  extrato_pontuacao               extrato_pontuacao[]
+  rel_cursos_instituicoes_usuario rel_cursos_instituicoes_usuario[]
+  rel_usuario_areasconhecimentos  rel_usuario_areasconhecimentos[]
+  rel_usuarios__diasda_semana     rel_usuarios__diasda_semana[]
+  rel_usuarios__produtos          rel_usuarios__produtos[]
+  resposta_persona_usuario        resposta_persona_usuario[]
+  simulados                       simulados[]
+
+  @@index([grauEnsinosId], map: "FK_1dbfde1a6892f6508862bc3dda6")
+  @@index([municipiosId], map: "FK_2c974ce1177eb8ef4a3a2e0c63c")
+  @@index([tipoUsuarioId], map: "FK_47004ca0d45d62edfc526ebf748")
+  @@index([estadosId], map: "FK_4f64fa05917a1da1eb72d905459")
+  @@index([parceirosId], map: "FK_65c415e7ac3bf32a953e4d0f2df")
+}
+
+model video_aulas {
+  id                        Int                         @id @default(autoincrement())
+  createdBy                 String?                     @db.VarChar(255)
+  createdDate               DateTime?                   @default(now()) @db.DateTime(6)
+  lastModifiedBy            String?                     @db.VarChar(255)
+  lastModifiedDate          DateTime?                   @default(now()) @db.DateTime(6)
+  assunto                   String?                     @db.VarChar(255)
+  professor                 String?                     @db.VarChar(255)
+  link_aula                 String                      @db.VarChar(255)
+  observacao                String?                     @db.VarChar(255)
+  rel_materias__video_aulas rel_materias__video_aulas[]
+  rel_video_aulas__tags     rel_video_aulas__tags[]
+}
