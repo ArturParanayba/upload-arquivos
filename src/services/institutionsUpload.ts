@@ -8,17 +8,13 @@ import {
   filterDuplicatedFromArray,
   filterInstitution,
 } from "../utils/filterDuplicates";
+import { prisma } from "../database/prisma";
 
 const institutionsUpload = async (infosLine: readLine.Interface) => {
   const institutionsUntreated: InstitutionWithState[] = [];
 
   for await (let line of infosLine) {
     const infosLineSplit = line.split(`${process.env.DELIMITER}`);
-
-    // const municipioToSearch = infosLineSplit[5];
-    // const UFToSearch = infosLineSplit[6];
-
-    // const MunicipioId = await searchMunicipio(municipioToSearch, UFToSearch);
 
     institutionsUntreated.push({
       nome: infosLineSplit[0],
@@ -40,40 +36,31 @@ const institutionsUpload = async (infosLine: readLine.Interface) => {
     const municipioToSearch = institution.municipio;
     const UFToSearch = institution.uf;
 
-    try {
-      const municipioId = await searchMunicipio(municipioToSearch, UFToSearch);
+    const municipioId = await searchMunicipio(municipioToSearch, UFToSearch);
 
-      if (municipioId === null) {
-        errorLog.push({
-          nome: institution.nome,
-          nome_campus: institution.nome_campus,
-          sigla: institution.sigla,
-          tipo_instituicao: institution.tipo_instituicao,
-          estado: institution.uf,
-          municipio: institution.municipio,
-          motivo: "O Município informado não está cadastrado na base de dados",
-        });
-        continue;
-      }
-
-      filteredInstitutions.push({
-        nome: institution.nome,
-        municipiosId: Number(municipioId),
-        nome_campus: institution.nome_campus,
-        sigla: institution.sigla,
-        tipo_instituicao: institution.tipo_instituicao,
-      });
-    } catch (error) {
+    if (municipioId === null) {
       errorLog.push({
         nome: institution.nome,
         nome_campus: institution.nome_campus,
         sigla: institution.sigla,
         tipo_instituicao: institution.tipo_instituicao,
+        estado: institution.uf,
+        municipio: institution.municipio,
+        motivo: "O Município informado não está cadastrado na base de dados",
       });
       continue;
     }
+
+    filteredInstitutions.push({
+      nome: institution.nome,
+      municipiosId: Number(municipioId),
+      nome_campus: institution.nome_campus,
+      sigla: institution.sigla,
+      tipo_instituicao: institution.tipo_instituicao,
+    });
   }
-  //INSERT NO BANCO filteredInstitutions
+
+  await prisma.instituicoes.createMany({ data: filteredInstitutions });
 
   return { institutionsUntreated, filteredInstitutions, errorLog };
 };

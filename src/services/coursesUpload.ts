@@ -2,9 +2,12 @@ import readLine from "readline";
 import {
   filterCourseInstitutionRelationData,
   filterDuplicatedFromArray,
+  filterDuplicateCourse,
+  filterDuplicateCourseRelatedWithInstitution,
 } from "../utils/filterDuplicates";
 import { Course } from "../interfaces/course.interface";
 import { CourseInstitutions } from "../interfaces/courseInstitution.interface";
+import { prisma } from "../database/prisma";
 
 const coursesUpload = async (infosLine: readLine.Interface) => {
   const coursesToInsert: Course[] = [];
@@ -20,20 +23,25 @@ const coursesUpload = async (infosLine: readLine.Interface) => {
       turno: infosLineSplit[10],
     });
 
-    coursesRelatedWithInstitutions.push({
-      nome_curso: infosLineSplit[8],
-      nome_instituicao: infosLineSplit[1],
-      grau: infosLineSplit[9],
-      turno: infosLineSplit[10],
-    });
+    // coursesRelatedWithInstitutions.push({
+    //   nome_curso: infosLineSplit[8],
+    //   nome_instituicao: infosLineSplit[0],
+    //   grau: infosLineSplit[9],
+    //   turno: infosLineSplit[10],
+    // });
   }
+  const coursesTreatedArray = filterDuplicateCourse(coursesToInsert);
 
-  const coursesTreatedArray = filterDuplicatedFromArray(coursesToInsert);
-  const coursesRelatedWithInstitutionsTreatedArray =
-    filterCourseInstitutionRelationData(coursesRelatedWithInstitutions);
-  //INSERT NO BANCO
+  // const coursesRelatedWithInstitutionsTreatedArray =
+  //   filterDuplicateCourseRelatedWithInstitution(coursesRelatedWithInstitutions);
 
-  return { coursesTreatedArray, coursesRelatedWithInstitutionsTreatedArray };
+  await prisma.cursos.createMany({
+    data: coursesTreatedArray,
+  });
+
+  return {
+    coursesTreatedArray,
+  };
 };
 
 export { coursesUpload };

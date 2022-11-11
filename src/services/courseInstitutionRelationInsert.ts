@@ -37,7 +37,7 @@ const courseInstitutionRelationInsert = async (
   const relationsTreatedArray =
     filterCourseInstitutionRelationData(relationship);
 
-  //await prisma.cursos_instituicoes.createMany({ data: relationsTreatedArray });
+  // await prisma.cursos_instituicoes.createMany({ data: relationsTreatedArray });
 
   console.log("relacionamentos criados: ", relationsTreatedArray.length);
   return relationsTreatedArray;
